@@ -9,21 +9,7 @@ YEAR = '2019'
 
 
 def get_html_using_selenium(url):
-    # driver = webdriver.Chrome(executable_path='/Users/ankitmodi/Desktop/Code/goodreads_year_end_review/chromedriver')
-    #
-    # driver.get (MAIN_URL)
-    # driver.find_element_by_id("userSignInFormEmail").send_keys("a.modi1422@gmail.com")
-    # driver.find_element_by_id ("user_password").send_keys("a14a22a20a20")
-    # # driver.find_element_by_id(“submit”).click()
-    # # driver.find_element_by_xpath("//option[@value='Sign in']").click()
-    # driver.find_element_by_xpath("//input[@type='submit' and @value='Sign in']").click()
-    #
-    # driver.get ("https://www.goodreads.com/review/list/13487053-ankit-modi?order=d&per_page=100&ref=nav_mybooks&shelf=read&sort=date_read&utf8=%E2%9C%93")
-    # time.sleep(5)
-    # driver.quit()
-
-
-
+    
     # driver = webdriver.Chrome(executable_path='/Users/ankitmodi/Desktop/Code/goodreads_year_end_review/chromedriver')
     # driver.get (url)
     #
