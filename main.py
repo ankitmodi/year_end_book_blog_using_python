@@ -5,7 +5,7 @@ import requests
 
 
 MAIN_URL = 'https://www.goodreads.com/review/list/13487053-ankit-modi?order=d&ref=nav_mybooks&shelf=read&sort=date_read&utf8=%E2%9C%93'
-YEAR = '2020'
+YEAR = '2019'
 OUTPUT_MD_FILE_PATH = '/Users/ankitmodi/Desktop/Code/ankitmodi.github.io/_posts/2020-12-14-my-year-in-books-2019.md'
 INTRO_PARA_OF_BLOG = f'{YEAR} was a good reading year for me. Here are the books I read in order of how much I liked them:\n'
 
@@ -128,6 +128,16 @@ def create_markdown(filtered_and_sorted_book_list, year, intro_para,
             f.write(f"### <a href='{book_url}' target='_blank'>{i+1}. {curr_book['title']}</a>\n")
 
 
+
+            #cover_url
+            small_cover_url = curr_book['cover_url']
+            basename = small_cover_url.split('/')[-1]
+            s = basename.index('._')
+            e = basename.index('_.') + 1
+            new_basename = basename[:s] + basename[e:]
+            big_cover_url = small_cover_url.replace(basename, new_basename)
+            f.write(f"![cover image]({big_cover_url})" + "{: height='300' width='200px' style='float:left; padding-right:20px; padding-bottom:5px; padding-top:5px' }\n")
+
             # author_name, author_url
             author_str = curr_book['author_name']
             author_arr = [i.strip() for i in author_str.split(',')]
@@ -140,20 +150,10 @@ def create_markdown(filtered_and_sorted_book_list, year, intro_para,
             f.write(f"My rating: ___{curr_book['rating']} out of 5 stars___\n")
             f.write('<br><br>\n')
 
-            #cover_url
-            small_cover_url = curr_book['cover_url']
-            basename = small_cover_url.split('/')[-1]
-            s = basename.index('._')
-            e = basename.index('_.') + 1
-            new_basename = basename[:s] + basename[e:]
-            big_cover_url = small_cover_url.replace(basename, new_basename)
-            f.write(f"![cover image]({big_cover_url})" + "{: height='300px' width='200px' style='float:left; padding-right:20px; padding-bottom:5px; padding-top:5px' }\n")
-
-
             # review
             f.write(curr_book['review'] + '\n')
+            f.write('<br><br>\n\n\n\n')
 
-            f.write('<br><br>\n\n')
 
 
     print('Markdown created !!')
