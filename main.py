@@ -1,35 +1,36 @@
 from selenium import webdriver
 import time
 from bs4 import BeautifulSoup
-import requests
 
 
+YEAR = '2020'
+OUTPUT_MD_FILE_PATH = 'markdown_file.md'
+INTRO_PARA_OF_BLOG = f'{YEAR} was a good reading year for me. The Covid induced work-from-home saved ample travel hours for me to fall in love with reading again. Here are the books that I read this year - some of them were delightful; others not so much.\n'
+CHROME_DRIVER_PATH = '/Users/ankitmodi/Desktop/Code/scraping_goodreads_using_python/chromedriver'
 MAIN_URL = 'https://www.goodreads.com/review/list/13487053-ankit-modi?order=d&ref=nav_mybooks&shelf=read&sort=date_read&utf8=%E2%9C%93'
-YEAR = '2019'
-OUTPUT_MD_FILE_PATH = '/Users/ankitmodi/Desktop/Code/ankitmodi.github.io/_posts/2020-12-14-my-year-in-books-2019.md'
-INTRO_PARA_OF_BLOG = f'{YEAR} was a good reading year for me. Here are the books I read in order of how much I liked them:\n'
 
-def get_html_using_selenium(url):
 
-    # driver = webdriver.Chrome(executable_path='/Users/ankitmodi/Desktop/Code/goodreads_year_end_review/chromedriver')
-    # driver.get (url)
-    #
-    # # handle infinite scroll
-    # lenOfPage = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
-    # match = False
-    # while(match==False):
-    #     lastCount = lenOfPage
-    #     time.sleep(3)
-    #     lenOfPage = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
-    #     if lastCount==lenOfPage:
-    #         match=True
-    #
-    # # Page is fully scrolled now. Next step is to extract the source code from it.
-    # my_html = driver.page_source
-    # driver.quit()
+def get_html_using_selenium(url, CHROME_DRIVER_PATH):
 
-    with open('tmp.html', 'r') as f:
-        my_html = f.read()
+    driver = webdriver.Chrome(executable_path=CHROME_DRIVER_PATH)
+    driver.get (url)
+
+    # handle infinite scroll
+    lenOfPage = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
+    match = False
+    while(match==False):
+        lastCount = lenOfPage
+        time.sleep(3)
+        lenOfPage = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
+        if lastCount==lenOfPage:
+            match=True
+
+    # Page is fully scrolled now. Next step is to extract the source code from it.
+    my_html = driver.page_source
+    driver.quit()
+
+    # with open('tmp.html', 'r') as f:
+    #     my_html = f.read()
 
     return my_html
 
@@ -44,7 +45,9 @@ def get_rating_from_text(rating_text):
     return rating_dict[rating_text]
 
 
-def get_books_data(soup):
+def get_books_data(html_str):
+    soup = BeautifulSoup(html_str, 'lxml')
+
     table = soup.find_all('table', {'id':'books'})[0]
     table_rows = table.find_all('tr')
     book_list = []
@@ -118,16 +121,13 @@ def create_markdown(filtered_and_sorted_book_list, year, intro_para,
         f.write('---\n')
         f.write(f'{intro_para}\n')
 
-        # all fields available: , , , review
-        # book_url, title, cover_url, author_name, author_url, rating
+        # loop over book list and create md paragraphs for each book
         for i in range(len(filtered_and_sorted_book_list)):
             curr_book = filtered_and_sorted_book_list[i]
 
             # title, book_url
             book_url = url_prefix + curr_book['book_url']
             f.write(f"### <a href='{book_url}' target='_blank'>{i+1}. {curr_book['title']}</a>\n")
-
-
 
             #cover_url
             small_cover_url = curr_book['cover_url']
@@ -152,24 +152,18 @@ def create_markdown(filtered_and_sorted_book_list, year, intro_para,
 
             # review
             f.write(curr_book['review'] + '\n')
-            f.write('<br><br>\n\n\n\n')
-
-
+            f.write('<br clear="all"><br>\n\n\n\n')
 
     print('Markdown created !!')
 
 
 
 if __name__ == '__main__':
-    html_str = get_html_using_selenium(MAIN_URL)
+    html_str = get_html_using_selenium(MAIN_URL, CHROME_DRIVER_PATH)
 
-    soup = BeautifulSoup(html_str, 'lxml')
-    book_list = get_books_data(soup)
-    # print(book_list)
+    book_list = get_books_data(html_str)
 
     filtered_and_sorted_book_list = filter_and_sort_books(book_list, YEAR)
-    # print(filtered_and_sorted_book_list[0])
 
-    # filter by year, sort by rating
     create_markdown(filtered_and_sorted_book_list, YEAR, INTRO_PARA_OF_BLOG,
                     OUTPUT_MD_FILE_PATH)
